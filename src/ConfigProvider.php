@@ -11,14 +11,16 @@ declare(strict_types=1);
  */
 namespace Illuminate\Mail;
 
+use Illuminate\Mail\Contracts\FactoryInterface;
+
 class ConfigProvider
 {
     public function __invoke(): array
     {
         return [
             'dependencies' => [
-                'mail.manager' => MailManager::class,
-                Markdown::class => MarkdownManager::class,
+                FactoryInterface::class  => MailFactory::class,
+                Markdown::class => MarkdownFactory::class,
             ],
             'commands' => [
             ],

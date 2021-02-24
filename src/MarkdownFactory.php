@@ -8,7 +8,7 @@ use Hyperf\Contract\ConfigInterface;
 /**
  * @mixin \Illuminate\Mail\Markdown
  */
-class MarkdownManager
+class MarkdownFactory
 {
     // 实现一个 __invoke() 方法来完成对象的生产，方法参数会自动注入一个当前的容器实例
     public function __invoke(ContainerInterface $container)

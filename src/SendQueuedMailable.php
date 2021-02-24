@@ -2,7 +2,8 @@
 
 namespace Illuminate\Mail;
 
-use Illuminate\Mail\Contracts\Factory as MailFactory;
+use Hyperf\Utils\ApplicationContext;
+use Illuminate\Mail\Contracts\FactoryInterface;
 use Illuminate\Mail\Contracts\Mailable as MailableContract;
 use Hyperf\AsyncQueue\Job as AsyncQueueJob;
 
@@ -52,12 +53,11 @@ class SendQueuedMailable extends AsyncQueueJob
     /**
      * Handle the queued job.
      *
-     * @param  \Illuminate\Mail\Contracts\Factory  $factory
      * @return void
      */
-    public function handle(MailFactory $factory)
+    public function handle()
     {
-        $this->mailable->send($factory);
+        $this->mailable->send(ApplicationContext::getContainer()->get(FactoryInterface::class));
     }
 
     /**

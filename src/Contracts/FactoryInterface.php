@@ -2,7 +2,7 @@
 
 namespace Illuminate\Mail\Contracts;
 
-interface Factory
+interface FactoryInterface
 {
     /**
      * Get a mailer instance by name.

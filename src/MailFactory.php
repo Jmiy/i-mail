@@ -7,11 +7,8 @@ use Closure;
 use GuzzleHttp\Client as HttpClient;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\ViewEngine\Contract\FactoryInterface;
-
-use Illuminate\Mail\Contracts\Factory as FactoryContract;
-
+use Illuminate\Mail\Contracts\FactoryInterface as FactoryContract;
 use Illuminate\Log\LogManager;
-
 use Illuminate\Mail\Transport\ArrayTransport;
 use Illuminate\Mail\Transport\LogTransport;
 use Illuminate\Mail\Transport\MailgunTransport;
@@ -34,7 +31,7 @@ use Hyperf\AsyncQueue\Driver\DriverFactory;
 /**
  * @mixin \Illuminate\Mail\Mailer
  */
-class MailManager implements FactoryContract
+class MailFactory implements FactoryContract
 {
     /**
      * The application instance.
@@ -119,12 +116,12 @@ class MailManager implements FactoryContract
         // Once we have created the mailer instance we will set a container instance
         // on the mailer. This allows us to resolve mailer classes via containers
         // for maximum testability on said classes instead of passing Closures.
-        $config = $this->app->get(ConfigInterface::class);
+        //$config = $this->app->get(ConfigInterface::class);
 
         $events = null;//$this->app['events']
-        if ($this->app->has(DispatcherContract::class)) {
-            $events=$this->app->get(DispatcherContract::class);
-        }
+//        if ($this->app->has(DispatcherContract::class)) {
+//            $events=$this->app->get(DispatcherContract::class);
+//        }
 
         $mailer = new Mailer(
             $name,

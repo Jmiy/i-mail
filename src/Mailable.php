@@ -5,7 +5,7 @@ namespace Illuminate\Mail;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Traits\ForwardsCalls;
 use Hyperf\Filesystem\FilesystemFactory;
-use Illuminate\Mail\Contracts\Factory as MailFactory;
+use Illuminate\Mail\Contracts\FactoryInterface;
 use Illuminate\Mail\Contracts\Mailable as MailableContract;
 
 use Hyperf\ViewEngine\HtmlString;
@@ -160,7 +160,7 @@ class Mailable implements MailableContract, Renderable
     /**
      * Send the message using the given mailer.
      *
-     * @param  \Illuminate\Mail\Contracts\Factory|\Illuminate\Mail\Contracts\Mailer  $mailer
+     * @param  \Illuminate\Mail\Contracts\FactoryInterface|\Illuminate\Mail\Contracts\Mailer  $mailer
      * @return void
      */
     public function send($mailer)
@@ -168,7 +168,9 @@ class Mailable implements MailableContract, Renderable
         return $this->withLocale($this->locale, function () use ($mailer) {
             //Container::getInstance()->call([$this, 'build']);
 
-            $mailer = $mailer instanceof MailFactory
+            call([$this, 'build']);
+
+            $mailer = $mailer instanceof FactoryInterface
                             ? $mailer->mailer($this->mailer)
                             : $mailer;
 
@@ -202,7 +204,7 @@ class Mailable implements MailableContract, Renderable
 //            $queueName ?: null, $this->newQueuedJob()
 //        );
 
-        return $queue->get($connection)->push($this->newQueuedJob());
+        return $queue->get($connection ?? 'default')->push($this->newQueuedJob());
     }
 
     /**
@@ -222,7 +224,7 @@ class Mailable implements MailableContract, Renderable
 //            $queueName ?: null, $delay, $this->newQueuedJob()
 //        );
 
-        return $queue->get($connection)->push($this->newQueuedJob(),$delay);
+        return $queue->get($connection ?? 'default')->push($this->newQueuedJob(),$delay);
     }
 
     /**
@@ -245,7 +247,7 @@ class Mailable implements MailableContract, Renderable
     public function render()
     {
         return $this->withLocale($this->locale, function () {
-            return ApplicationContext::getContainer()->get('mail.manager')->mailer()->render(
+            return ApplicationContext::getContainer()->get(FactoryInterface::class)->mailer()->render(
                 $this->buildView(), $this->buildViewData()
             );
         });
