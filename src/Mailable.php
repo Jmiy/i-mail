@@ -154,6 +154,33 @@ class Mailable implements MailableContract, Renderable
     public static $viewDataCallback;
 
     /**
+     * The name of the mailer that should send the message.
+     *
+     * @var Illuminate\Mail\Mailer
+     */
+    public $mailService;
+
+    /**
+     * get mailService
+     * @return Illuminate\Mail\Mailer
+     */
+    public function getMailService()
+    {
+        return $this->mailService;
+    }
+
+    /**
+     * set mailService
+     * @param Illuminate\Mail\Mailer $mailer
+     * @return $this
+     */
+    public function setMailService($mailer)
+    {
+        $this->mailService = $mailer;
+        return $this;
+    }
+
+    /**
      * Send the message using the given mailer.
      *
      * @param  \Illuminate\Mail\Contracts\FactoryInterface|\Illuminate\Mail\Contracts\Mailer  $mailer
@@ -164,11 +191,13 @@ class Mailable implements MailableContract, Renderable
         return $this->withLocale($this->locale, function () use ($mailer) {
             //Container::getInstance()->call([$this, 'build']);
 
-            call([$this, 'build']);
-
             $mailer = $mailer instanceof FactoryInterface
-                            ? $mailer->mailer($this->mailer)
-                            : $mailer;
+                ? $mailer->mailer($this->mailer)
+                : $mailer;
+
+            $this->setMailService($mailer);
+
+            call([$this, 'build']);
 
             return $mailer->send($this->buildView(), $this->buildViewData(), function ($message) {
                 $this->buildFrom($message)
