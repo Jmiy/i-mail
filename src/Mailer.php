@@ -3,8 +3,6 @@
 namespace Illuminate\Mail;
 
 use Psr\EventDispatcher\EventDispatcherInterface as Dispatcher;
-//use Illuminate\Contracts\Events\Dispatcher;
-//use Illuminate\Contracts\Queue\Factory as QueueContract;
 use Hyperf\AsyncQueue\Driver\DriverFactory as QueueContract;
 use Illuminate\Mail\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Contracts\Mailable as MailableContract;
@@ -12,7 +10,6 @@ use Illuminate\Mail\Contracts\Mailer as MailerContract;
 use Illuminate\Mail\Contracts\MailQueue as MailQueueContract;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
-//use Illuminate\Contracts\View\Factory;
 use Hyperf\ViewEngine\Contract\FactoryInterface as Factory;
 use Hyperf\ViewEngine\Contract\Htmlable;
 use Hyperf\ViewEngine\HtmlString;

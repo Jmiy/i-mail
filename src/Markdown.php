@@ -3,7 +3,6 @@
 namespace Illuminate\Mail;
 
 use Hyperf\ViewEngine\Contract\FactoryInterface as ViewFactory;
-//use Illuminate\Contracts\View\Factory as ViewFactory;
 use Hyperf\ViewEngine\HtmlString;
 use Hyperf\Utils\Str;
 use League\CommonMark\CommonMarkConverter;

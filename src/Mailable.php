@@ -7,13 +7,9 @@ use Hyperf\Utils\Traits\ForwardsCalls;
 use Hyperf\Filesystem\FilesystemFactory;
 use Illuminate\Mail\Contracts\FactoryInterface;
 use Illuminate\Mail\Contracts\Mailable as MailableContract;
-
 use Hyperf\ViewEngine\HtmlString;
 use Hyperf\ViewEngine\Contract\Renderable;
-
-//use Illuminate\Contracts\Queue\Factory as Queue;
 use Hyperf\AsyncQueue\Driver\DriverFactory as Queue;
-
 use Illuminate\Mail\Support\Traits\Localizable;
 use Hyperf\Utils\Str;
 use Hyperf\Utils\Collection;
