@@ -13,7 +13,8 @@ use Illuminate\Mail\Events\MessageSent;
 use Hyperf\ViewEngine\Contract\FactoryInterface as Factory;
 use Hyperf\ViewEngine\Contract\Htmlable;
 use Hyperf\ViewEngine\HtmlString;
-use Hyperf\Utils\Traits\Macroable;
+//use Hyperf\Utils\Traits\Macroable;
+use Hyperf\Macroable\Macroable;
 use InvalidArgumentException;
 use Swift_Mailer;
 
@@ -302,8 +303,8 @@ class Mailer implements MailerContract, MailQueueContract
     protected function sendMailable(MailableContract $mailable)
     {
         return $mailable instanceof ShouldQueue
-                        ? $mailable->mailer($this->name)->queue($this->queue)
-                        : $mailable->mailer($this->name)->send($this);
+            ? $mailable->mailer($this->name)->queue($this->queue)
+            : $mailable->mailer($this->name)->send($this);
     }
 
     /**
@@ -380,8 +381,8 @@ class Mailer implements MailerContract, MailQueueContract
     protected function renderView($view, $data)
     {
         return $view instanceof Htmlable
-                        ? $view->toHtml()
-                        : $this->views->make($view, $data)->render();
+            ? $view->toHtml()
+            : $this->views->make($view, $data)->render();
     }
 
     /**
@@ -540,8 +541,8 @@ class Mailer implements MailerContract, MailQueueContract
         }
 
         return $this->events->until(
-            new MessageSending($message, $data)
-        ) !== false;
+                new MessageSending($message, $data)
+            ) !== false;
     }
 
     /**
