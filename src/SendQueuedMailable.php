@@ -19,7 +19,7 @@ class SendQueuedMailable extends AsyncQueueJob
     /**
      * @var int
      */
-    protected $maxAttempts = 0;
+    protected int $maxAttempts = 0;
 
     /**
      * The number of times the job may be attempted.
