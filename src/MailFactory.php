@@ -2,9 +2,11 @@
 
 namespace Illuminate\Mail;
 
+use App\Constants\Constant;
 use Aws\Ses\SesClient;
 use Closure;
 use GuzzleHttp\Client as HttpClient;
+use Hyperf\Context\Context;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Coroutine\Coroutine;
 use Hyperf\ViewEngine\Contract\FactoryInterface;
@@ -72,8 +74,9 @@ class MailFactory implements FactoryContract
     public function mailer($name = null)
     {
         $name = $name ?: $this->getDefaultDriver();
-        $cId = Coroutine::id();
-        return $this->mailers[$name . '-' . $cId] = $this->get($name);
+
+        return $this->get($name);
+//        return $this->mailers[$name] = $this->get($name);
     }
 
     /**
@@ -95,9 +98,18 @@ class MailFactory implements FactoryContract
      */
     protected function get($name)
     {
-        $cId = Coroutine::id();
-        return $this->mailers[$name . '-' . $cId] ?? $this->resolve($name);
-//        return $this->resolve($name);
+//        $cId = Coroutine::id();
+//        $name = $name . '-' . $cId;
+
+        $mailer = Context::get($name);
+        if (!$mailer) {
+            $mailer = $this->resolve($name);
+            Context::set($name, $mailer);
+        }
+
+        return $mailer;
+
+//        return $this->mailers[$name . '-' . $cId] ?? $this->resolve($name);
     }
 
     /**
