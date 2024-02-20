@@ -6,6 +6,7 @@ use Aws\Ses\SesClient;
 use Closure;
 use GuzzleHttp\Client as HttpClient;
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\Coroutine\Coroutine;
 use Hyperf\ViewEngine\Contract\FactoryInterface;
 use Illuminate\Mail\Contracts\FactoryInterface as FactoryContract;
 use Illuminate\Log\LogManager;
@@ -65,20 +66,20 @@ class MailFactory implements FactoryContract
     /**
      * Get a mailer instance by name.
      *
-     * @param  string|null  $name
+     * @param string|null $name
      * @return \Illuminate\Mail\Mailer
      */
     public function mailer($name = null)
     {
         $name = $name ?: $this->getDefaultDriver();
-
-        return $this->mailers[$name] = $this->get($name);
+        $cId = Coroutine::id();
+        return $this->mailers[$name . '-' . $cId] = $this->get($name);
     }
 
     /**
      * Get a mailer driver instance.
      *
-     * @param  string|null  $driver
+     * @param string|null $driver
      * @return \Illuminate\Mail\Mailer
      */
     public function driver($driver = null)
@@ -89,18 +90,20 @@ class MailFactory implements FactoryContract
     /**
      * Attempt to get the mailer from the local cache.
      *
-     * @param  string  $name
+     * @param string $name
      * @return \Illuminate\Mail\Mailer
      */
     protected function get($name)
     {
-        return $this->mailers[$name] ?? $this->resolve($name);
+        $cId = Coroutine::id();
+        return $this->mailers[$name . '-' . $cId] ?? $this->resolve($name);
+//        return $this->resolve($name);
     }
 
     /**
      * Resolve the given mailer.
      *
-     * @param  string  $name
+     * @param string $name
      * @return \Illuminate\Mail\Mailer
      *
      * @throws \InvalidArgumentException
@@ -148,7 +151,7 @@ class MailFactory implements FactoryContract
     /**
      * Create the SwiftMailer instance for the given configuration.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Swift_Mailer
      */
     protected function createSwiftMailer(array $config)
@@ -165,7 +168,7 @@ class MailFactory implements FactoryContract
     /**
      * Create a new transport instance.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Swift_Transport
      */
     public function createTransport(array $config)
@@ -180,7 +183,7 @@ class MailFactory implements FactoryContract
             return call_user_func($this->customCreators[$transport], $config);
         }
 
-        if (trim($transport) === '' || ! method_exists($this, $method = 'create'.ucfirst($transport).'Transport')) {
+        if (trim($transport) === '' || !method_exists($this, $method = 'create' . ucfirst($transport) . 'Transport')) {
             throw new InvalidArgumentException("Unsupported mail transport [{$transport}].");
         }
 
@@ -190,7 +193,7 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the SMTP Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Swift_SmtpTransport
      */
     protected function createSmtpTransport(array $config)
@@ -203,7 +206,7 @@ class MailFactory implements FactoryContract
             $config['port']
         );
 
-        if (! empty($config['encryption'])) {
+        if (!empty($config['encryption'])) {
             $transport->setEncryption($config['encryption']);
         }
 
@@ -222,8 +225,8 @@ class MailFactory implements FactoryContract
     /**
      * Configure the additional SMTP driver options.
      *
-     * @param  \Swift_SmtpTransport  $transport
-     * @param  array  $config
+     * @param \Swift_SmtpTransport $transport
+     * @param array $config
      * @return \Swift_SmtpTransport
      */
     protected function configureSmtpTransport($transport, array $config)
@@ -254,7 +257,7 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the Sendmail Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Swift_SendmailTransport
      */
     protected function createSendmailTransport(array $config)
@@ -267,12 +270,12 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the Amazon SES Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Illuminate\Mail\Transport\SesTransport
      */
     protected function createSesTransport(array $config)
     {
-        if (! isset($config['secret'])) {
+        if (!isset($config['secret'])) {
             $config = array_merge($this->app->get(ConfigInterface::class)->get('services.ses', []), [
                 'version' => 'latest', 'service' => 'email',
             ]);
@@ -289,12 +292,12 @@ class MailFactory implements FactoryContract
     /**
      * Add the SES credentials to the configuration array.
      *
-     * @param  array  $config
+     * @param array $config
      * @return array
      */
     protected function addSesCredentials(array $config)
     {
-        if (! empty($config['key']) && ! empty($config['secret'])) {
+        if (!empty($config['key']) && !empty($config['secret'])) {
             $config['credentials'] = Arr::only($config, ['key', 'secret', 'token']);
         }
 
@@ -314,12 +317,12 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the Mailgun Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Illuminate\Mail\Transport\MailgunTransport
      */
     protected function createMailgunTransport(array $config)
     {
-        if (! isset($config['secret'])) {
+        if (!isset($config['secret'])) {
             $config = $this->app->get(ConfigInterface::class)->get('i_services.mailgun', []);
         }
 
@@ -334,7 +337,7 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the Postmark Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Swift_Transport
      */
     protected function createPostmarkTransport(array $config)
@@ -349,7 +352,7 @@ class MailFactory implements FactoryContract
     /**
      * Create an instance of the Log Swift Transport driver.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Illuminate\Mail\Transport\LogTransport
      */
     protected function createLogTransport(array $config)
@@ -378,7 +381,7 @@ class MailFactory implements FactoryContract
     /**
      * Get a fresh Guzzle HTTP client instance.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \GuzzleHttp\Client
      */
     protected function guzzle(array $config)
@@ -393,24 +396,24 @@ class MailFactory implements FactoryContract
     /**
      * Set a global address on the mailer by type.
      *
-     * @param  \Illuminate\Mail\Mailer  $mailer
-     * @param  array  $config
-     * @param  string  $type
+     * @param \Illuminate\Mail\Mailer $mailer
+     * @param array $config
+     * @param string $type
      * @return void
      */
     protected function setGlobalAddress($mailer, array $config, string $type)
     {
-        $address = Arr::get($config, $type, $this->app->get(ConfigInterface::class)->get('mail.'.$type));
+        $address = Arr::get($config, $type, $this->app->get(ConfigInterface::class)->get('mail.' . $type));
 
         if (is_array($address) && isset($address['address'])) {
-            $mailer->{'always'.Str::studly($type)}($address['address'], $address['name']);
+            $mailer->{'always' . Str::studly($type)}($address['address'], $address['name']);
         }
     }
 
     /**
      * Get the mail connection configuration.
      *
-     * @param  string  $name
+     * @param string $name
      * @return array
      */
     protected function getConfig(string $name)
@@ -441,7 +444,7 @@ class MailFactory implements FactoryContract
     /**
      * Set the default mail driver name.
      *
-     * @param  string  $name
+     * @param string $name
      * @return void
      */
     public function setDefaultDriver(string $name)
@@ -457,8 +460,8 @@ class MailFactory implements FactoryContract
     /**
      * Register a custom transport creator Closure.
      *
-     * @param  string  $driver
-     * @param  \Closure  $callback
+     * @param string $driver
+     * @param \Closure $callback
      * @return $this
      */
     public function extend($driver, Closure $callback)
@@ -471,8 +474,8 @@ class MailFactory implements FactoryContract
     /**
      * Dynamically call the default driver instance.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
